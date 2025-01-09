@@ -22,6 +22,7 @@ previous_x, previous_y = None, None
 # Hệ số khuếch đại
 amplification_factor = 1
 
+video = "Video_test/tayphai.mp4"
 # Mở camera
 capture = cv2.VideoCapture(0)
 
