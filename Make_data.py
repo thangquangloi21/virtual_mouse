@@ -30,8 +30,8 @@ def extract_hand_landmarks(results):
 
 landmarks_data = []
 # video = "Video_test/taytrai.mp4"
-video = "D:\All_learn_programs\Python\\virtual_mouse\Video_test\\2025-01-10 14-38-07_mirrored.mp4"
-output = "D:\All_learn_programs\Python\\virtual_mouse\Data\PressMouse"
+video = "D:\All_learn_programs\Python\\virtualMouse\Video_test\\scrollMouse.mp4"
+output = "D:\All_learn_programs\Python\\virtualMouse\Data\ScrollMouse"
 # Mở camera
 capture = cv2.VideoCapture(video)
 
@@ -82,7 +82,7 @@ while capture.isOpened():
                 # Lưu vào df và xuất ra file csv
                 columns = [str(i) for i in range(len(landmarks_data[0]))]
                 df = pd.DataFrame(landmarks_data, columns=columns)
-                df.to_csv(os.path.join(output, "press_mouse.csv"), index=False)
+                df.to_csv(os.path.join(output, "scroll_mouse.csv"), index=False)
                 print(f"lưu thành công {landmarks_data[0]}")
     # Hiển thị hình ảnh kết quả
     cv2.imshow("Hand Tracking with Mouse Control", image)

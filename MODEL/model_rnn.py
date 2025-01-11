@@ -24,17 +24,17 @@ no_of_timesteps = 10
 X = []
 y = []
 # đọc dữ liệu
-inp_dance1 = "D:\All_learn_programs\Python\\virtual_mouse\Data\MoveMouse"
-inp_dance2 = "D:\All_learn_programs\Python\\virtual_mouse\Data\PressMouse"
-# inp_dance3 = "D:\All_learn_programs\Python\Project242012\VideoDataTraning\Len"
-# inp_dance4 = "D:\All_learn_programs\Python\Project242012\VideoDataTraning\Phai"
+inp_dance1 = "D:\All_learn_programs\Python\\virtualMouse\Data\MoveMouse"
+inp_dance2 = "D:\All_learn_programs\Python\\virtualMouse\Data\LeftMouse"
+inp_dance3 = "D:\All_learn_programs\Python\\virtualMouse\Data\RightMouse"
+inp_dance4 = "D:\All_learn_programs\Python\\virtualMouse\Data\ScrollMouse"
 # inp_dance5 = "D:\All_learn_programs\Python\Project242012\VideoDataTraning\Trai"
 # inp_dance6 = "D:\All_learn_programs\Python\Project242012\VideoDataTraning\Xuong"
 
 read_data(inp_dance1, 0)
 read_data(inp_dance2, 1)
-# read_data(inp_dance3, 2)
-# read_data(inp_dance4, 3)
+read_data(inp_dance3, 2)
+read_data(inp_dance4, 3)
 # read_data(inp_dance5, 4)
 # read_data(inp_dance6, 5)
 X, y = np.array(X), np.array(y)
@@ -53,7 +53,7 @@ model.add(SimpleRNN(units=50, return_sequences=True))
 model.add(Dropout(0.2))
 model.add(SimpleRNN(units=50))
 model.add(Dropout(0.2))
-model.add(Dense(units=2, activation="softmax"))
+model.add(Dense(units=4, activation="softmax"))
 model.compile(optimizer="adam", metrics=['accuracy'], loss="sparse_categorical_crossentropy")
 
 # Huấn luyện mô hình
