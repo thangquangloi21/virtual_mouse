@@ -1,4 +1,5 @@
 import csv
+import os.path
 import time
 import pandas as pd
 import cv2
@@ -7,6 +8,7 @@ import mediapipe as mp
 # Khởi tạo Mediapipe
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
+
 
 # Khởi tạo mô hình Mediapipe
 hands_model = mp_hands.Hands(
@@ -28,7 +30,8 @@ def extract_hand_landmarks(results):
 
 landmarks_data = []
 # video = "Video_test/taytrai.mp4"
-video = "Video_test/tayphai.mp4"
+video = "D:\All_learn_programs\Python\\virtualMouse\Video_test\\scrollMouse.mp4"
+output = "D:\All_learn_programs\Python\\virtualMouse\Data\ScrollMouse"
 # Mở camera
 capture = cv2.VideoCapture(video)
 
@@ -62,7 +65,7 @@ while capture.isOpened():
                 # print(index_tip)
                 x, y = int(index_tip.x * w), int(index_tip.y * h)
                 # print(hand_landmarks.landmark)
-                # xử lý data 1 khung hình thành 1 list gồm tọa độ 21 đểm
+                # xử lý data 1 khung hình thành 1 list gồm tọa độ 21 điểm
                 hand_frame = extract_hand_landmarks(hand_landmarks)
                 # print(hand_frame)
                 # thêm vào data frame
@@ -75,17 +78,18 @@ while capture.isOpened():
 
                 # Vẽ toàn bộ bàn tay
                 mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-            # Lưu vào df và xuất ra file csv
-            columns = [str(i) for i in range(len(landmarks_data[0]))]
-            df = pd.DataFrame(landmarks_data, columns=columns)
-            df.to_csv("hand_landmarks.csv", index=False)
-            print(f"lưu thành công {landmarks_data[0]}")
+            if len(landmarks_data) > 0:
+                # Lưu vào df và xuất ra file csv
+                columns = [str(i) for i in range(len(landmarks_data[0]))]
+                df = pd.DataFrame(landmarks_data, columns=columns)
+                df.to_csv(os.path.join(output, "scroll_mouse.csv"), index=False)
+                print(f"lưu thành công {landmarks_data[0]}")
     # Hiển thị hình ảnh kết quả
     cv2.imshow("Hand Tracking with Mouse Control", image)
 
 
     # Nhập phím 'q' để phá vòng lặp
-    if cv2.waitKey(5) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 
