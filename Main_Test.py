@@ -4,10 +4,13 @@ import mediapipe as mp
 import numpy as np
 import tensorflow as tf
 import mouse
+from collections import deque
+import pyautogui
 
 # Initialize Mediapipe
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
+pyautogui.FAILSAFE = False
 
 # Load the pre-trained model
 model = tf.keras.models.load_model("D:\All_learn_programs\Python\\virtualMouse\MODEL\model_gru.h5")
@@ -17,24 +20,23 @@ lm_list = []
 # Initialize Mediapipe hands model
 hands_model = mp_hands.Hands(
     static_image_mode=False,
-    max_num_hands=2,  # Xử lý cả hai tay
-    min_detection_confidence=0.4,
-    min_tracking_confidence=0.4
+    max_num_hands=2,
+    min_detection_confidence=0.9,
+    min_tracking_confidence=0.9
 )
 
-# Screen dimensions
-screen_width, screen_height = mouse.get_position()
 
-# Smooth movement function
-def smooth_move(target_x, target_y, duration=0.1, steps=10):
-    current_x, current_y = mouse.get_position()
-    step_x = (target_x - current_x) / steps
-    step_y = (target_y - current_y) / steps
-    for i in range(steps):
-        current_x += step_x
-        current_y += step_y
-        mouse.move(int(current_x), int(current_y))
-        time.sleep(duration / steps)
+# Lưu vị trí ngón tay trước đó
+previous_x, previous_y = None, None
+
+# Hệ số khuếch đại
+amplification_factor = 10
+
+
+# Bộ đệm tọa độ (lấy trung bình 10 giá trị gần nhất)
+buffer_size = 10
+x_buffer = deque(maxlen=buffer_size)
+y_buffer = deque(maxlen=buffer_size)
 
 def detect(model, lm_list):
     lm_list = np.expand_dims(np.array(lm_list), axis=0)
@@ -74,7 +76,7 @@ while capture.isOpened():
 
     # Flip and resize frame
     frame = cv2.flip(frame, 1)
-    frame = cv2.resize(frame, (640, 480))
+    frame = cv2.resize(frame, (800, 600))
     H, W, _ = frame.shape
 
     # Convert BGR to RGB
@@ -87,7 +89,7 @@ while capture.isOpened():
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     i += 1
-    if i > warmup_frames and i % 3 == 0:
+    if i > warmup_frames:
         if results.multi_hand_landmarks:
             left_hand, right_hand = None, None
 
@@ -135,9 +137,10 @@ while capture.isOpened():
             # Xử lý cử chỉ tay phải (Move Mouse, Click)
             if right_hand and accept_action == True:
                 lm_list.append(make_landmark_timestep(right_hand))
+                x, y, z = int(right_hand.landmark[8].x * W), int(right_hand.landmark[8].y * H), int(right_hand.landmark[8].z * (-100))
+                x1 = (round(x / 10) * 10) / 10
+                y1 = (round(y / 10) * 10) / 10
 
-                xMouse = (int(right_hand.landmark[8].x * W)) / (W/1920)
-                yMouse = (int(right_hand.landmark[8].y * H))/ (H/1080)
 
                 if predicted_action_index == 0:  # Left Click
                     mouse.click(button='left')
@@ -146,9 +149,26 @@ while capture.isOpened():
                     mouse.click(button='right')
                     print("Right Click Performed")
                 elif predicted_action_index == 1:  # Move Mouse
-                    smooth_move(xMouse, yMouse, duration=0.1, steps=5)
+                    # Nếu đã có vị trí trước đó, tính toán delta
+                    try:
+                        if previous_x is not None and previous_y is not None:
+                            delta_x = (x1 - previous_x) * amplification_factor / (W/1920)
+                            delta_y = (y1 - previous_y) * amplification_factor / (H/1080)
+                            # Di chuyển chuột theo delta
+                            print(f"delta_x,delta_y = ({delta_x, delta_y})".format())
+                            pyautogui.moveRel(delta_x, delta_y)
+                        previous_x, previous_y = x1, y1
+                        print(f"Hien tai chuot dang o ({previous_x},{previous_y})".format())
+                    except Exception as error:
+                        print(error)
+                    previous_x, previous_y = x1, y1
+                    # Vẽ điểm ngón tay trên khung hình
+                    cv2.circle(image, (x, y), 10, (0, 255, 0), -1)
+                    cv2.putText(image, f"Right Hand({x},{y})", (x, y - 20),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
                     print(predicted_action_index)
-
+            else:
+                previous_x, previous_y = None, None
             # Vẽ tay
             if left_hand:
                 mp_drawing.draw_landmarks(image, left_hand, mp_hands.HAND_CONNECTIONS)
