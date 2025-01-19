@@ -4,6 +4,7 @@ import time
 import mediapipe as mp
 import numpy as np
 import tensorflow as tf
+import pydirectinput
 
 
 # Lấy Mô hình Toàn diện từ Mediapipe và
