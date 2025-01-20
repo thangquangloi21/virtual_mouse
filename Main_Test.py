@@ -15,13 +15,13 @@ pyautogui.FAILSAFE = False
 # Load the pre-trained model
 model = tf.keras.models.load_model("D:\All_learn_programs\Python\\virtualMouse\MODEL\model_gru.h5")
 labels = {
-    "LeftMouse": 0,
-    "MoveMouse": 1,
-    "RightMouse": 2,
-    "ScrollDown": 3,
-    "ScrollUp": 4,
-    "Start": 5,
-    "PauseCursor": 6,
+    0: "LeftMouse",
+    1:"MoveMouse",
+    2: "RightMouse",
+    3: "ScrollDown",
+    4: "ScrollUp",
+    5: "Start",
+    6: "PauseCursor",
 }
 lm_list = []
 
