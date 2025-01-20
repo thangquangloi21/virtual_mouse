@@ -41,11 +41,6 @@ previous_x, previous_y = None, None
 amplification_factor = 20
 
 
-# Bộ đệm tọa độ (lấy trung bình 10 giá trị gần nhất)
-buffer_size = 10
-x_buffer = deque(maxlen=buffer_size)
-y_buffer = deque(maxlen=buffer_size)
-
 def detect(model, lm_list):
     lm_list = np.expand_dims(np.array(lm_list), axis=0)
     results = model.predict(lm_list)
