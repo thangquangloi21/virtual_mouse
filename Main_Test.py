@@ -14,15 +14,23 @@ pyautogui.FAILSAFE = False
 
 # Load the pre-trained model
 model = tf.keras.models.load_model("D:\All_learn_programs\Python\\virtualMouse\MODEL\model_gru.h5")
-labels = {0: "LeftMouse",1: "MoveMouse", 2: "RightMouse", 3: "ScrollDown", 4: "ScrollUp",5: "ZoomIn", 6: "Zoomout",7: "Off", 8: "Start", 9: "PauseCursor"}
+labels = {
+    "LeftMouse": 0,
+    "MoveMouse": 1,
+    "RightMouse": 2,
+    "ScrollDown": 3,
+    "ScrollUp": 4,
+    "Start": 5,
+    "PauseCursor": 6,
+}
 lm_list = []
 
 # Initialize Mediapipe hands model
 hands_model = mp_hands.Hands(
     static_image_mode=False,
     max_num_hands=2,
-    min_detection_confidence=0.9,
-    min_tracking_confidence=0.9
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
 )
 
 
@@ -30,7 +38,7 @@ hands_model = mp_hands.Hands(
 previous_x, previous_y = None, None
 
 # Hệ số khuếch đại
-amplification_factor = 10
+amplification_factor = 20
 
 
 # Bộ đệm tọa độ (lấy trung bình 10 giá trị gần nhất)
@@ -85,7 +93,6 @@ while capture.isOpened():
 
     # Process hand landmarks
     results = hands_model.process(image)
-    image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     i += 1
@@ -115,24 +122,15 @@ while capture.isOpened():
             if left_hand and right_hand:
                 lm_list.append(make_landmark_timestep(left_hand))
                 lm_list.append(make_landmark_timestep(right_hand))
-
                 # Xử lý "Start" và "Off"
-                if predicted_action_index == 8:  # Start
+                if predicted_action_index == 5:  # Start
                     print("Start Detected")
                     accept_action = True
-                elif predicted_action_index == 7:  # Off
-                    print("Off Detected")
-                    accept_action = False
 
 
             # Xử lý cử chỉ tay trái (Zoom In, Zoom Out)
             if left_hand and accept_action == True:
                 lm_list.append(make_landmark_timestep(left_hand))
-
-                if predicted_action_index == 5:  # Zoom In
-                    print("Zoom In Detected")
-                elif predicted_action_index == 6:  # Zoom Out
-                    print("Zoom Out Detected")
 
             # Xử lý cử chỉ tay phải (Move Mouse, Click)
             if right_hand and accept_action == True:
@@ -141,13 +139,18 @@ while capture.isOpened():
                 x1 = (round(x / 10) * 10) / 10
                 y1 = (round(y / 10) * 10) / 10
 
-
                 if predicted_action_index == 0:  # Left Click
                     mouse.click(button='left')
                     print("Left Click Performed")
                 elif predicted_action_index == 2:  # Right Click
                     mouse.click(button='right')
                     print("Right Click Performed")
+                elif predicted_action_index == 3:
+                    mouse.wheel(-1)
+                    print("scroll up")
+                elif predicted_action_index == 4:
+                    mouse.wheel(1)
+                    print("scroll down")
                 elif predicted_action_index == 1:  # Move Mouse
                     # Nếu đã có vị trí trước đó, tính toán delta
                     try:
