@@ -27,8 +27,8 @@ def extract_hand_landmarks(hand_landmarks):
 
 landmarks_data = []
 # Đường dẫn video và đầu ra
-video = "D:\All_learn_programs\Python\\virtualMouse\Video_test\BothHand\start1.mp4"
-output = "D:\All_learn_programs\Python\\virtualMouse\Data\Start"
+video = "D:\\virtual_mouse-test_branch\\virtual_mouse-test_branch\\Video_test\\Start\\start1.mp4"
+output = "D:\\virtual_mouse-test_branch\\virtual_mouse-test_branch\\Data\\Start"
 
 # Mở video
 capture = cv2.VideoCapture(video)
@@ -110,7 +110,7 @@ while capture.isOpened():
 if len(landmarks_data) > 0:
     columns = [str(i) for i in range(len(landmarks_data[0]))]
     df = pd.DataFrame(landmarks_data, columns=columns)
-    csv_path = os.path.join(output, "start1.csv")
+    csv_path = os.path.join(output, "start_mouse1.csv")
     df.to_csv(csv_path, index=False)
     print(f"Dữ liệu đã được lưu thành công tại {csv_path}")
 

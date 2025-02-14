@@ -1,12 +1,13 @@
 import os
 import numpy as np
 import pandas as pd
-from keras.layers import Dense, Dropout, LSTM
-from keras.models import Sequential, load_model
+from keras.api.layers import Dense, Dropout, LSTM
+from keras.api.models import Sequential, load_model
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.api.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.api.utils import plot_model
 
 
 # Cấu hình tham số
@@ -14,51 +15,48 @@ no_of_timesteps = 10
 num_of_epochs = 16
 batch_size = 32
 
-# Hàm tăng cường dữ liệu (Data Augmentation)
-def augment_data(dataset):
-    augmented_data = []
-    for seq in dataset:
-        # Thêm nhiễu Gaussian
-        noise = np.random.normal(0, 0.01, seq.shape)
-        seq_noisy = seq + noise
-        # Dịch chuyển
-        shift = np.random.uniform(-0.1, 0.1)
-        seq_shifted = seq + shift
-        # Thêm cả bản gốc và đã tăng cường
-        augmented_data.extend([seq, seq_noisy, seq_shifted])
-    return np.array(augmented_data)
-
-# Hàm tạo Data Generator để tiết kiệm bộ nhớ
-def data_generator(input_dir, label, batch_size, augment=False):
-    X, y = [], []
-    for filename in os.listdir(input_dir):
-        if filename.endswith(".csv"):
-            file_csv = os.path.join(input_dir, filename)
-            action_df = pd.read_csv(file_csv)
-            dataset = action_df.iloc[:, 0:].values
-            n_sample = len(dataset)
-            for i in range(no_of_timesteps, n_sample):
-                seq = dataset[i - no_of_timesteps:i, :]
-                X.append(seq)
-                y.append(label)
-                if len(X) == batch_size:
-                    X, y = np.array(X), np.array(y)
-                    if augment:
-                        X = augment_data(X)
-                    yield X, y
-                    X, y = [], []
+# # Hàm tăng cường dữ liệu (Data Augmentation)
+# def augment_data(dataset):
+#     augmented_data = []
+#     for seq in dataset:
+#         # Thêm nhiễu Gaussian
+#         noise = np.random.normal(0, 0.01, seq.shape)
+#         seq_noisy = seq + noise
+#         # Dịch chuyển
+#         shift = np.random.uniform(-0.1, 0.1)
+#         seq_shifted = seq + shift
+#         # Thêm cả bản gốc và đã tăng cường
+#         augmented_data.extend([seq, seq_noisy, seq_shifted])
+#     return np.array(augmented_data)
+#
+# # Hàm tạo Data Generator để tiết kiệm bộ nhớ
+# def data_generator(input_dir, label, batch_size, augment=False):
+#     X, y = [], []
+#     for filename in os.listdir(input_dir):
+#         if filename.endswith(".csv"):
+#             file_csv = os.path.join(input_dir, filename)
+#             action_df = pd.read_csv(file_csv)
+#             dataset = action_df.iloc[:, 0:].values
+#             n_sample = len(dataset)
+#             for i in range(no_of_timesteps, n_sample):
+#                 seq = dataset[i - no_of_timesteps:i, :]
+#                 X.append(seq)
+#                 y.append(label)
+#                 if len(X) == batch_size:
+#                     X, y = np.array(X), np.array(y)
+#                     if augment:
+#                         X = augment_data(X)
+#                     yield X, y
+#                     X, y = [], []
 
 # Đường dẫn dữ liệu
 input_dirs = {
-    "LeftMouse": 0,
-    "MoveMouse": 1,
-    "RightMouse": 2,
-    "ScrollDown": 3,
-    "ScrollUp": 4,
-    "Start": 5,
-    "PauseCursor": 6,
+    "Move": 0,
+    "Pause": 1,
+    "Scroll": 2,
+    "Start": 3,
 }
-base_dir = "D:/All_learn_programs/Python/virtualMouse/Data"
+base_dir = "D:\\virtual_mouse-test_branch\\virtual_mouse-test_branch\Data"
 
 # Đọc toàn bộ dữ liệu để tạo tập test
 X, y = [], []
@@ -84,18 +82,24 @@ X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test
 model = Sequential([
     LSTM(units=50, return_sequences=True, input_shape=(X.shape[1], X.shape[2])),
     Dropout(0.2),
-    LSTM(units=50, return_sequences=True),
+    LSTM(units=40, return_sequences=True),
     Dropout(0.2),
-    LSTM(units=50, return_sequences=True),
+    LSTM(units=30, return_sequences=True),
     Dropout(0.2),
-    LSTM(units=50, return_sequences=True),
+    LSTM(units=20, return_sequences=True),
     Dropout(0.2),
-    LSTM(units=32),
+    LSTM(units=10),
     Dropout(0.2),
     Dense(units=len(input_dirs), activation="softmax"),
 ])
 
 model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=['accuracy'])
+
+model.build(input_shape=(None,X.shape[1], X.shape[2])) #This line builds the model, making it ready for summary and plotting
+
+# Summary + Model Visualization
+model.summary()
+plot_model(model, to_file="model_lstm.png", show_shapes=True, show_layer_names=True, show_layer_activations=True)
 
 # Callbacks để cải thiện quá trình huấn luyện
 early_stopping = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
@@ -111,7 +115,7 @@ H = model.fit(
 )
 
 # Lưu mô hình
-model.save("model_lstm.h5")
+model.save("model_lstm.keras")
 
 # Vẽ đồ thị kết quả
 plt.plot(H.history['loss'], label='Training Loss')
@@ -125,7 +129,7 @@ plt.legend()
 plt.show()
 
 # Đánh giá mô hình
-model = load_model("model_lstm.h5")
+model = load_model("model_lstm.keras")
 loss, acc = model.evaluate(X_test, y_test)
 print("Test Loss:", loss)
 print("Test Accuracy:", acc)
