@@ -1,13 +1,13 @@
 import os
 import numpy as np
 import pandas as pd
-from keras.api.layers import Dense, Dropout, GRU
-from keras.api.models import Sequential, load_model
-from keras.api.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.layers import Dense, Dropout, GRU
+from keras.models import Sequential, load_model
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from keras.api.utils import plot_model
+from keras.utils import plot_model
 
 # Cấu hình tham số
 no_of_timesteps = 10

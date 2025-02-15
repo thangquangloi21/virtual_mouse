@@ -1,53 +1,20 @@
 import os
 import numpy as np
 import pandas as pd
-from  keras.api.layers import Dense, Dropout, SimpleRNN
-from keras.api.models import Sequential, load_model
+from  keras.layers import Dense, Dropout, SimpleRNN
+from keras.models import Sequential, load_model
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from keras.api.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 import csv
-from keras.api.utils import plot_model
+from keras.utils import plot_model
 
 # Cấu hình tham số
 no_of_timesteps = 10
 num_of_epochs = 16
 batch_size = 32
 
-# # Hàm tăng cường dữ liệu (Data Augmentation)
-# def augment_data(dataset):
-#     augmented_data = []
-#     for seq in dataset:
-#         # Thêm nhiễu Gaussian
-#         noise = np.random.normal(0, 0.01, seq.shape)
-#         seq_noisy = seq + noise
-#         # Dịch chuyển
-#         shift = np.random.uniform(-0.1, 0.1)
-#         seq_shifted = seq + shift
-#         # Thêm cả bản gốc và đã tăng cường
-#         augmented_data.extend([seq, seq_noisy, seq_shifted])
-#     return np.array(augmented_data)
-#
-# # Hàm tạo Data Generator để tiết kiệm bộ nhớ
-# def data_generator(input_dir, label, batch_size, augment=False):
-#     X, y = [], []
-#     for filename in os.listdir(input_dir):
-#         if filename.endswith(".csv"):
-#             file_csv = os.path.join(input_dir, filename)
-#             action_df = pd.read_csv(file_csv)
-#             dataset = action_df.iloc[:, 0:].values
-#             n_sample = len(dataset)
-#             for i in range(no_of_timesteps, n_sample):
-#                 seq = dataset[i - no_of_timesteps:i, :]
-#                 X.append(seq)
-#                 y.append(label)
-#                 if len(X) == batch_size:
-#                     X, y = np.array(X), np.array(y)
-#                     if augment:
-#                         X = augment_data(X)
-#                     yield X, y
-#                     X, y = [], []
 
 # Đường dẫn dữ liệu
 input_dirs = {
@@ -99,7 +66,7 @@ model.build(input_shape=(None,X.shape[1], X.shape[2])) #This line builds the mod
 
 # Summary + Model Visualization
 model.summary()
-plot_model(model, to_file="model_rnn.png", show_shapes=True, show_layer_names=True, show_layer_activations=True)
+# plot_model(model, to_file="model_rnn.png", show_shapes=True, show_layer_names=True, show_layer_activations=True)
 
 # Callbacks để cải thiện quá trình huấn luyện
 early_stopping = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
