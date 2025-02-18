@@ -23,7 +23,7 @@ input_dirs = {
     "Scroll": 2,
     "Start": 3,
 }
-base_dir = "D:\\virtual_mouse-test_branch\\virtual_mouse-test_branch\Data"
+base_dir = r"D:\All_learn_programs\Python\virtualMouse\Data"
 
 # Đọc toàn bộ dữ liệu để tạo tập test
 X, y = [], []

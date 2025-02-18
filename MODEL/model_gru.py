@@ -21,7 +21,7 @@ input_dirs = {
     "Scroll": 2,
     "Start": 3,
 }
-base_dir = "D:\\virtual_mouse-test_branch\\virtual_mouse-test_branch\Data"
+base_dir = r"D:\All_learn_programs\Python\virtualMouse\Data"
 
 # Đọc toàn bộ dữ liệu để tạo tập test
 X, y = [], []
@@ -64,7 +64,7 @@ model.build(input_shape=(None,X.shape[1], X.shape[2])) #This line builds the mod
 
 # Summary + Model Visualization
 model.summary()
-plot_model(model, to_file="model_gru.png", show_shapes=True, show_layer_names=True, show_layer_activations=True)
+# plot_model(model, to_file="model_gru.png", show_shapes=True, show_layer_names=True, show_layer_activations=True)
 
 # Callbacks để cải thiện quá trình huấn luyện
 early_stopping = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
